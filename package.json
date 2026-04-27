@@ -6,6 +6,7 @@
     "type": "module",
     "scripts": {
         "scan": "tsx src/scanner/scanLibrary.ts",
+        "chunk": "tsx src/core/createChunks.ts",
         "typecheck": "tsc --noEmit",
         "build": "tsc"
     },
