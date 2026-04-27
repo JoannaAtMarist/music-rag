@@ -1,0 +1,29 @@
+{
+    "name": "music-rag",
+    "version": "0.1.0",
+    "description": "Local music library scanner and RAG learning project",
+    "main": "dist/index.js",
+    "type": "module",
+    "scripts": {
+        "scan": "tsx src/scanner/scanLibrary.ts",
+        "typecheck": "tsc --noEmit",
+        "build": "tsc"
+    },
+    "keywords": [
+        "music",
+        "rag",
+        "embeddings",
+        "metadata",
+        "typescript"
+    ],
+    "author": "",
+    "license": "MIT",
+    "dependencies": {
+        "music-metadata": "^11.0.0"
+    },
+    "devDependencies": {
+        "@types/node": "^22.19.17",
+        "tsx": "^4.20.0",
+        "typescript": "^5.8.0"
+    }
+}
