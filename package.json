@@ -8,6 +8,7 @@
         "scan": "tsx src/scanner/scanLibrary.ts",
         "chunk": "tsx src/core/createChunks.ts",
         "embed": "tsx src/core/createEmbeddings.ts",
+        "search": "tsx src/core/search.ts",
         "typecheck": "tsc --noEmit",
         "build": "tsc"
     },
