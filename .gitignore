@@ -148,5 +148,6 @@ library.json
 library_full.json
 library_mb.json
 chunks.json
+chunks_full.json
 embeddings.json
 visualization.json
