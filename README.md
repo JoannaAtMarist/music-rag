@@ -1,6 +1,6 @@
 # 🎵 music-rag
 
-A local, end-to-end RAG (Retrieval-Augmented Generation) learning project that turns your personal music library into a semantic search engine.
+A local, end-to-end RAG (Retrieval-Augmented Generation) learning project that turns your personal music library into a semantic search engine and visual embedding explorer.
 
 ---
 
@@ -11,8 +11,9 @@ Music files
 → text chunks  
 → embeddings  
 → semantic search  
+→ visualization (2D embedding map)  
 
-You can search your music by meaning instead of exact keywords.
+You can search your music by meaning instead of exact keywords and see how songs cluster together visually.
 
 ---
 
@@ -23,24 +24,41 @@ You can search your music by meaning instead of exact keywords.
 - Embeddings
 - Vector similarity search
 - RAG pipeline basics
+- Dimensionality reduction (PCA)
+
+---
+
+## Visualization Feature
+
+This project includes a 2D embedding visualization:  
+
+- Each dot = one song
+- Closer dots = more similar songs
+- Hover to see title, artist, album
+
+This helps make embeddings intuitive and visible.
 
 ---
 
 ## Project Structure
+```
+music-rag/
+  data/
+    library.json
+    chunks.json
+    embeddings.json 
+    visualization.json
+    artwork/
 
-music-rag/  
-  data/  
-    library.json  
-    chunks.json  
-    embeddings.json  
-    artwork/  
+  src/
+    scanner/             # Phase 1: scan music files
+    core/                # chunking, embeddings, search, visualization
+    types/
+    utilities/
 
-  src/  
-    scanner/  
-    core/  
-    types/  
-    utilities/  
-
+  public/
+    visualization.html   # interactive scatterplot
+```
 ---
 
 ## Setup
@@ -58,21 +76,33 @@ EMBEDDING_MODEL=text-embedding-3-small
 
 ## Usage
 
-Scan music:
+1. Scan music:
 ```
 npm run scan -- "PATH_TO_YOUR_MUSIC"
 ```
-Chunk data:
+2. Chunk data:
 ```
 npm run chunk
 ```
-Generate embeddings:
+3. Generate embeddings:
 ```
 npm run embed
 ```
-Search:
+4. Search:
 ```
 npm run search -- "mellow 70s rock"
+```
+5. Generate visualization data:
+```
+npm run visualize:data
+```
+6. View visualization:
+```
+npm run visualize
+```
+Then open:
+```
+/public/visualization.html
 ```
 ---
 
@@ -82,6 +112,8 @@ npm run search -- "mellow 70s rock"
 - TypeScript
 - OpenAI API
 - music-metadata
+- PCA (via ml-pca)
+- HTML Canvas (for visualization)
 
 ---
 
@@ -94,7 +126,11 @@ npm run search -- "mellow 70s rock"
 
 ## Purpose
 
-Learn RAG systems using real personal data.
+This project is designed to learn and demonstrate RAG systems using real personal data, with an emphasis on understanding:
+
+- how embeddings work
+- how semantic search differs from keyword search
+- how vector spaces can be visualized
 
 ---
 
@@ -102,5 +138,16 @@ Learn RAG systems using real personal data.
 
 - Scanning complete
 - Chunking complete
-- Embeddings complete
-- Search working
+- Embeddings complete (resumable)
+- Semantic search working
+- Visualization working
+
+---
+
+## Future Improvements
+
+- Album artwork display in visualization
+- Web UI for search
+- Playlist generation
+- LLM-generated responses (full RAG)
+- Local embedding models (offline mode)
