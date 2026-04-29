@@ -145,3 +145,4 @@ vite.config.ts.timestamp-*
 
 # other
 library_mb.json
+embeddings.json
