@@ -7,6 +7,8 @@ import OpenAI from "openai";
 import type { SongChunk } from "../types/SongChunk.js";
 import type { EmbeddedSongChunk } from "../types/EmbeddedSongChunk.js";
 
+const BATCH_SAVE_SIZE = 25;
+
 const client = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
@@ -22,40 +24,87 @@ async function main(): Promise<void> {
         process.exit(1);
     }
 
-    const rawChunks = fs.readFileSync(chunksPath, "utf-8");
-    const chunks = JSON.parse(rawChunks) as SongChunk[];
+    const chunks = readJsonFile<SongChunk[]>(chunksPath);
+    const embeddedChunks = loadExistingEmbeddings(embeddingsPath);
 
-    const embeddedChunks: EmbeddedSongChunk[] = [];
+    const completedIds = new Set(embeddedChunks.map((chunk) => chunk.id));
+
+    console.log(`Total chunks: ${chunks.length}`);
+    console.log(`Already embedded: ${completedIds.size}`);
+
+    let newlyEmbeddedCount = 0;
 
     for (const chunk of chunks) {
-        console.log(`Embedding: ${chunk.metadata.title} - ${chunk.metadata.artist}`);
-
-        const response = await client.embeddings.create({
-            model,
-            input: chunk.text,
-        });
-
-        const embedding = response.data[0]?.embedding;
-
-        if (!embedding) {
-            console.warn(`No embedding returned for chunk: ${chunk.id}`);
+        if (completedIds.has(chunk.id)) {
             continue;
         }
 
-        embeddedChunks.push({
-            ...chunk,
-            embedding,
-        });
+        try {
+            console.log(`Embedding: ${chunk.metadata.title} - ${chunk.metadata.artist}`);
+
+            const response = await client.embeddings.create({
+                model,
+                input: chunk.text,
+            });
+
+            const embedding = response.data[0]?.embedding;
+
+            if (!embedding) {
+                console.warn(`No embedding returned for chunk: ${chunk.id}`);
+                continue;
+            }
+
+            embeddedChunks.push({
+                ...chunk,
+                embedding,
+            });
+
+            completedIds.add(chunk.id);
+            newlyEmbeddedCount++;
+
+            if (newlyEmbeddedCount % BATCH_SAVE_SIZE === 0) {
+                saveEmbeddings(embeddingsPath, embeddedChunks);
+                console.log(`Progress saved. Total embedded: ${embeddedChunks.length}`);
+            }
+        } catch (error) {
+            console.error(`Failed while embedding chunk: ${chunk.id}`);
+            console.error(`${chunk.metadata.title} - ${chunk.metadata.artist}`);
+            console.error(error);
+
+            saveEmbeddings(embeddingsPath, embeddedChunks);
+            console.log("Saved progress before exiting.");
+
+            process.exit(1);
+        }
     }
 
-    fs.writeFileSync(
-        embeddingsPath,
-        JSON.stringify(embeddedChunks, null, 2),
-        "utf-8"
-    );
+    saveEmbeddings(embeddingsPath, embeddedChunks);
 
-    console.log(`Created ${embeddedChunks.length} embeddings.`);
-    console.log(`Saved embeddings to: ${embeddingsPath}`);
+    console.log(`Embedding complete.`);
+    console.log(`New embeddings created: ${newlyEmbeddedCount}`);
+    console.log(`Total embeddings saved: ${embeddedChunks.length}`);
+}
+
+function readJsonFile<T>(filePath: string): T {
+    const raw = fs.readFileSync(filePath, "utf-8");
+    return JSON.parse(raw) as T;
+}
+
+function loadExistingEmbeddings(filePath: string): EmbeddedSongChunk[] {
+    if (!fs.existsSync(filePath)) {
+        return [];
+    }
+
+    console.log(`Found existing embeddings file: ${filePath}`);
+
+    return readJsonFile<EmbeddedSongChunk[]>(filePath);
+}
+
+function saveEmbeddings(
+    filePath: string,
+    embeddedChunks: EmbeddedSongChunk[]
+): void {
+    fs.writeFileSync(filePath, JSON.stringify(embeddedChunks, null, 2), "utf-8");
 }
 
 main().catch((error) => {
