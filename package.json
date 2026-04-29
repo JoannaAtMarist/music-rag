@@ -9,6 +9,7 @@
         "chunk": "tsx src/core/createChunks.ts",
         "embed": "tsx src/core/createEmbeddings.ts",
         "search": "tsx src/core/search.ts",
+        "visualize:data": "tsx src/core/createVisualizationData.ts",
         "typecheck": "tsc --noEmit",
         "build": "tsc"
     },
@@ -23,6 +24,7 @@
     "license": "MIT",
     "dependencies": {
         "dotenv": "^17.4.2",
+        "ml-pca": "^4.1.1",
         "music-metadata": "^11.0.0",
         "openai": "^6.34.0"
     },
