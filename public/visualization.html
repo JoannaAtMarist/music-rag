@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Music Embedding Visualization</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 2rem;
+            background: #f7f7f7;
+        }
+
+        h1 {
+            margin-bottom: 0.25rem;
+        }
+
+        p {
+            margin-top: 0;
+            color: #555;
+        }
+
+        canvas {
+            background: white;
+            border: 1px solid #ccc;
+            display: block;
+            margin-top: 1rem;
+        }
+
+        #tooltip {
+            position: absolute;
+            background: white;
+            border: 1px solid #aaa;
+            padding: 0.5rem;
+            font-size: 0.9rem;
+            pointer-events: none;
+            display: none;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Music Embedding Visualization</h1>
+    <p>Each dot is a song. Closer dots should be more similar based on metadata embeddings.</p>
+
+    <canvas id="chart" width="1000" height="700"></canvas>
+    <div id="tooltip"></div>
+
+    <script>
+        const canvas = document.getElementById("chart");
+        const ctx = canvas.getContext("2d");
+        const tooltip = document.getElementById("tooltip");
+
+        const padding = 50;
+        const pointRadius = 4;
+
+        fetch("../data/visualization.json")
+            .then((response) => response.json())
+            .then((points) => {
+                drawChart(points);
+            })
+            .catch((error) => {
+                console.error(error);
+                alert("Could not load visualization.json. Make sure you open this through a local server.");
+            });
+
+        function drawChart(points) {
+            const xs = points.map((p) => p.x);
+            const ys = points.map((p) => p.y);
+
+            const minX = Math.min(...xs);
+            const maxX = Math.max(...xs);
+            const minY = Math.min(...ys);
+            const maxY = Math.max(...ys);
+
+            const plottedPoints = points.map((point) => {
+                return {
+                    ...point,
+                    screenX: scale(point.x, minX, maxX, padding, canvas.width - padding),
+                    screenY: scale(point.y, minY, maxY, canvas.height - padding, padding),
+                };
+            });
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (const point of plottedPoints) {
+                ctx.beginPath();
+                ctx.arc(point.screenX, point.screenY, pointRadius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            canvas.addEventListener("mousemove", (event) => {
+                const rect = canvas.getBoundingClientRect();
+                const mouseX = event.clientX - rect.left;
+                const mouseY = event.clientY - rect.top;
+
+                const nearest = findNearestPoint(plottedPoints, mouseX, mouseY);
+
+                if (nearest && nearest.distance < 8) {
+                    tooltip.style.display = "block";
+                    tooltip.style.left = `${event.pageX + 12}px`;
+                    tooltip.style.top = `${event.pageY + 12}px`;
+
+                    tooltip.innerHTML = `
+            <strong>${nearest.point.title}</strong><br>
+            ${nearest.point.artist}<br>
+            <em>${nearest.point.album}</em><br>
+            ${nearest.point.year ?? "Unknown Year"}<br>
+            ${nearest.point.genre.join(", ") || "Unknown Genre"}
+          `;
+                } else {
+                    tooltip.style.display = "none";
+                }
+            });
+        }
+
+        function scale(value, oldMin, oldMax, newMin, newMax) {
+            if (oldMax === oldMin) {
+                return (newMin + newMax) / 2;
+            }
+
+            return ((value - oldMin) / (oldMax - oldMin)) * (newMax - newMin) + newMin;
+        }
+
+        function findNearestPoint(points, mouseX, mouseY) {
+            let nearest = null;
+
+            for (const point of points) {
+                const dx = point.screenX - mouseX;
+                const dy = point.screenY - mouseY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (!nearest || distance < nearest.distance) {
+                    nearest = { point, distance };
+                }
+            }
+
+            return nearest;
+        }
+    </script>
+</body>
+
+</html>

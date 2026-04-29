@@ -10,6 +10,7 @@
         "embed": "tsx src/core/createEmbeddings.ts",
         "search": "tsx src/core/search.ts",
         "visualize:data": "tsx src/core/createVisualizationData.ts",
+        "visualize": "serve .",
         "typecheck": "tsc --noEmit",
         "build": "tsc"
     },
@@ -30,6 +31,7 @@
     },
     "devDependencies": {
         "@types/node": "^22.19.17",
+        "serve": "^14.2.6",
         "tsx": "^4.20.0",
         "typescript": "^5.8.0"
     }
