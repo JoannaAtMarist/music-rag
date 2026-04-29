@@ -23,17 +23,37 @@ export async function extractMetadata(filePath: string): Promise<Song> {
 
   const id = createSongId(filePath);
 
+  const albumArtist = metadata.common.albumartist ?? "Unknown Album Artist";
+  const composer = metadata.common.composer?.[0] ?? "Unknown Composer";
+
+  const discNumber = metadata.common.disk.no ?? null;
+
+  const grouping = metadata.common.grouping ?? "None";
+  //const comment = metadata.common.comment?.[0] ?? "";
+
   return {
     id,
     filePath,
     fileName,
+
     title,
     artist,
     album,
+
+    albumArtist,
+    composer,
+
     genre,
+
     year,
     trackNumber,
+    discNumber,
+
     durationSeconds,
+
+    grouping,
+    //comment,
+
     hasArtwork,
     artworkPath: null,
   };

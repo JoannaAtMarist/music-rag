@@ -36,18 +36,26 @@ function main(): void {
 
 function buildSongText(song: Song): string {
     const genreText = song.genre.length > 0 ? song.genre.join(", ") : "Unknown Genre";
-    const yearText = song.year ?? "Unknown Year";
-    const trackText = song.trackNumber ?? "Unknown Track Number";
 
-    return [
+    const parts = [
         `Song title: ${song.title}`,
         `Artist: ${song.artist}`,
         `Album: ${song.album}`,
+        `Album artist: ${song.albumArtist}`,
+        `Composer: ${song.composer}`,
         `Genre: ${genreText}`,
-        `Year: ${yearText}`,
-        `Track number: ${trackText}`,
-        `File name: ${song.fileName}`,
-    ].join("\n");
+        `Year: ${song.year ?? "Unknown Year"}`,
+    ];
+
+    if (song.grouping && song.grouping !== "None") {
+        parts.push(`Grouping: ${song.grouping}`);
+    }
+
+    // if (song.comment) {
+    //     parts.push(`Comment: ${song.comment}`);
+    // }
+
+    return parts.join("\n");
 }
 
 main();
