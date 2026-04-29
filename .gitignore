@@ -150,4 +150,6 @@ library_mb.json
 chunks.json
 chunks_full.json
 embeddings.json
+embeddings_full.json
 visualization.json
+visualization_full.json
