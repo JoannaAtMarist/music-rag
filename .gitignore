@@ -145,6 +145,7 @@ vite.config.ts.timestamp-*
 
 # data files
 library.json
+library_full.json
 library_mb.json
 chunks.json
 embeddings.json
