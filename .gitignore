@@ -143,6 +143,9 @@ vite.config.ts.timestamp-*
 .vite/
 
 
-# other
+# data files
+library.json
 library_mb.json
+chunks.json
 embeddings.json
+visualization.json
